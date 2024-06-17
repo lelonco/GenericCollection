@@ -1,8 +1,9 @@
-import UIKit
 import Combine
+import UIKit
 
 public protocol CollectionViewModel {}
 
+/// A protocol defining the requirements for a collection view controller.
 public protocol CollectionVCProtocol: CancellableStore {
     associatedtype ViewModel = BaseCollectionViewViewModel
     typealias Snapshot = NSDiffableDataSourceSnapshot<SectionViewModel, BaseCellViewModelImpl>
@@ -26,9 +27,11 @@ public protocol CollectionVCProtocol: CancellableStore {
 /// You should add a collectionView to the view and set up constraints.
 /// The collectionView is configured, and its default implementation is marked as final. You shouldn't override it.
 
+/// A generic base class for collection view controllers.
 open class GenericCollectionViewController<ViewModel: BaseCollectionViewViewModel>: UIViewController,
     CollectionVCProtocol,
-    UICollectionViewDelegate {
+    UICollectionViewDelegate
+{
     /// The collectionView instance used in this view controller.
     public lazy var collectionView: UICollectionView = {
         let view = UICollectionView(frame: .zero, collectionViewLayout: setupLayout())
@@ -40,7 +43,7 @@ open class GenericCollectionViewController<ViewModel: BaseCollectionViewViewMode
     }()
 
     /// The dataSource instance for the collectionView.
-    lazy public var dataSource: UICollectionViewDiffableDataSource<SectionViewModel, BaseCellViewModelImpl> = makeDatasource()
+    public lazy var dataSource: UICollectionViewDiffableDataSource<SectionViewModel, BaseCellViewModelImpl> = makeDatasource()
 
     public var cancellable = Set<AnyCancellable>()
     public var viewModel: ViewModel
@@ -55,7 +58,7 @@ open class GenericCollectionViewController<ViewModel: BaseCollectionViewViewMode
     }
 
     @available(*, unavailable)
-    required public init?(coder: NSCoder) {
+    public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -80,7 +83,7 @@ open class GenericCollectionViewController<ViewModel: BaseCollectionViewViewMode
     /// Sets up and returns the UICollectionViewCompositionalLayout for the collectionView.
     ///
     /// - Returns: The UICollectionViewCompositionalLayout instance.
-    final public func setupLayout() -> UICollectionViewCompositionalLayout {
+    public final func setupLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self]
             (sectionIndex: Int, _: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
                 self?.viewModel.layoutType(for: IndexPath(row: 0, section: sectionIndex))
@@ -93,7 +96,7 @@ open class GenericCollectionViewController<ViewModel: BaseCollectionViewViewMode
     /// - Parameters:
     ///   - sections: The sections to be displayed in the collectionView.
     ///   - animatingDifferences: A boolean value indicating whether to animate the differences.
-    final public func applySnapshot(sections: [SectionViewModel], animatingDifferences: Bool) {
+    public final func applySnapshot(sections: [SectionViewModel], animatingDifferences: Bool) {
         var snapshot = Snapshot()
         snapshot.appendSections(sections)
         for section in sections {
@@ -103,7 +106,7 @@ open class GenericCollectionViewController<ViewModel: BaseCollectionViewViewMode
     }
 
     /// Binds the viewModel's sectionPublisher to update the collectionView's content when the sections change.
-    final public func defaultBind() {
+    public final func defaultBind() {
         viewModel.sectionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] viewModels in
@@ -113,18 +116,17 @@ open class GenericCollectionViewController<ViewModel: BaseCollectionViewViewMode
     }
 
     /// Registers a header for the specified data source. Override this method in a subclass if you want to use a header.
-    open func registerHeader(for dataSource: UICollectionViewDiffableDataSource<SectionViewModel, BaseCellViewModelImpl>) {
+    open func registerHeader(for _: UICollectionViewDiffableDataSource<SectionViewModel, BaseCellViewModelImpl>) {
         assertionFailure("If you want to use a header, implement it in a subclass.")
     }
 
     // MARK: - UICollectionViewDelegate
 
-    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(_: UICollectionView, willDisplay _: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         viewModel.willDisplayCell(with: indexPath)
     }
 
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    public func collectionView(_: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         viewModel.didSelect(at: indexPath)
     }
 }
-

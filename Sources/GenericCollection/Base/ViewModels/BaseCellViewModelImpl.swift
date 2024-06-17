@@ -1,10 +1,11 @@
-import UIKit
 import Combine
+import UIKit
 
+/// A base implementation of a cell view model.
 open class BaseCellViewModelImpl: Hashable, BaseCellViewModelProtocol, BaseCellConfigrator {
     public var cellCreator: any CellCreator
     @Published public var isSkeleton = false
-    public var uuid: String {
+    open var uuid: String {
         UUID().uuidString
     }
 

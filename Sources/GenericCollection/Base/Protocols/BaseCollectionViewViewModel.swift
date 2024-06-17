@@ -1,6 +1,7 @@
 import Combine
 import UIKit
 
+/// A protocol defining the base requirements for a collection view model.
 public protocol BaseCollectionViewViewModel: CancellableStore, ObservableObject {
     var sectionPublisher: AnyPublisher<[SectionViewModel], Never> { get }
 

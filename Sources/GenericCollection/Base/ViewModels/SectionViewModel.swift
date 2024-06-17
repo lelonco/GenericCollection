@@ -1,26 +1,29 @@
-import UIKit
 import Combine
+import UIKit
 
+/// A protocol defining the requirements for a custom section view model.
 protocol CustomSectionViewModelProtocol: SectionViewModel {
     associatedtype SectionType: SectionLayoutType
     var sectionType: SectionType { get set }
     init(sectionType: SectionType)
 }
 
+/// A generic class for a custom section view model.
 open class CustomSectionViewModel<T: SectionLayoutType>: SectionViewModel, CustomSectionViewModelProtocol {
-    var sectionType: T
+    public var sectionType: T
 
-    required public init(sectionType: T) {
+    public required init(sectionType: T) {
         self.sectionType = sectionType
         super.init()
         title = sectionType.title
     }
 
-    open override func copy() -> SectionViewModel {
+    override open func copy() -> SectionViewModel {
         Self(sectionType: sectionType)
     }
 }
 
+/// A base class for a section view model.
 open class SectionViewModel: Hashable, ObservableObject {
     private(set) var uuid = UUID()
     public var title: String?
